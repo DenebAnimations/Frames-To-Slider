@@ -1,6 +1,6 @@
-var verInfo = "FrameToSlider ver 1.0";
+var verInfo = "FrameToSlider ver 1.1";
 var thisProject = app.project;
-var activeComp = thisProject.activeItem;
+var activeComp = thisProject.activeItem.selectedLayers[0];
 var targetSource = prompt("Target Source Composition (the one that contains frames)", "Target Composition", verInfo);
 
 function getCompIndex(compName) {
@@ -14,19 +14,15 @@ function getCompIndex(compName) {
 
 app.beginUndoGroup(verInfo);
 
-var slider = activeComp.layers.addNull();
-slider.source.name = "Slider";
-var controler = slider.effects.addProperty("ADBE Slider Control");
-controler.name = "Frame To Slider";
+var controler = activeComp.property("Effects").addProperty("ADBE Slider Control")
+controler.name = "Frames To Slider";
 
 for (var i = 1; i <= thisProject.item(getCompIndex(targetSource)).numLayers; i++) {
-	thisProject.item(getCompIndex(targetSource)).layer(i).transform.opacity.expression = "if (Math.floor(comp('Main Comp').layer('Slider').effect('Frame To Slider')('Slider')) == index-1 {\
+	thisProject.item(getCompIndex(targetSource)).layer(i).transform.opacity.expression = "if (Math.floor(comp('" + thisProject.activeItem.name + "').layer('" + activeComp.name + "').effect('Frames To Slider')('Slider').value) == index-1) {\
 	transform.opacity = 100;\
 } else {\
 	transform.opacity = 0;\
-	";
+}"
 }
 
 app.endUndoGroup();
-}
-
